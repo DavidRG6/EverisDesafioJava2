@@ -1,62 +1,132 @@
 package operators;
 
 /**
- *Formacion Java
+ * Formacion Java
  * 
  * @author driverog
  *
  */
 public class Pinball {
-	/** Variables del metodo */
-	
-	private static int puntuacionBase;
-	private boolean bolaExtra;
-	private int rebotadoresRedondos;
-	private int posibilidades;
-	private int palancaIzquierda;
-	private int palancaDerecha;
-	private boolean especial;
-	private boolean fuera;
-	private double puntos;
-	private long puntuacionFinal;
-	private int numeroBolaExtra;
+	/** Variable possibilities que baraja el suceso que puede ocurrir en el swicth */
+	private int possibilities;
+	/** Variable multiplier almacena el multiplicador de los elementos */
+	private double multiplier;
+	/** Variable punctuationBase es la puntuacion base que tienes nada mas empezar siempre */
+	private static int punctuationBase;
+	/** Variable points es una variable que se usa de apoyo para realizart corectamente los calculos para punctuationFinal */
+	private double points;
+	/** Variable punctuationFinal es la variable que muestra el resultado final de los calculos de puntuacion */
+	private long punctuationFinal;
+	/** Variable bouncersRound que es un contador de las veces que se impacta con este elemento, luego e usa para las puntuaciones extras */
+	private int bouncersRound;
+	/** Variable leverLeft que es un contador de las veces que se impacta con este elemento, luego se usa para las puntuaciones extras */
+	private int leverLeft;
+	/** Variable leverRight que es un contador de las veces que se impacta con este elemento, luego se usa para las puntuaciones extras */
+	private int leverRight;
+	/** Variable special es un boolean que muestra si el elemento especial esta activo o no ,para asi recibir puntuaciones mayores cuando se impacta con el */
+	private boolean special;
+	/** Variable extraBall es una boolean que muestra si se posee o no una bola extra */
+	private boolean extraBall;
+	/** Variable numberExtraBall es un contador para saber el numero total de bolas extras que se han usado */
+	private int numberExtraBall;
+	/** Variable out boolean que permite la salida del bucle se lanzamiento de la bola */
+	private boolean out;
 
-	/** Constructor de la clase */
-	
+	/**
+	 * Constructor metodo
+	 */
 	public Pinball() {
-		this.puntuacionBase = 100;
-		this.bolaExtra = false;
-		this.rebotadoresRedondos = 0;
-		this.palancaIzquierda = 1;
-		this.palancaDerecha = 0;
-		this.especial = true;
-		this.fuera = false;
-		this.puntuacionFinal = this.puntuacionBase;
-		this.puntos = this.puntuacionBase;
-		this.numeroBolaExtra = 0;
+		this.punctuationBase = 100;
+		this.punctuationFinal = this.punctuationBase;
+		this.points = this.punctuationBase;
+		this.bouncersRound = 0;
+		this.leverLeft = 1;
+		this.leverRight = 0;
+		this.special = true;
+		this.extraBall = false;
+		this.numberExtraBall = 0;
+		this.out = false;
 	}
 
 	/**
-	 * Funcion para la realizacion del reto
+	 * Funcion para la realizacion del reto (launchBall)
 	 */
-	
 	public void launchBall() {
+
 		// Posibilidades
+
+		launchBalls();
+
+		// Calculos de puntuacion extra por especial
+
+		this.punctuationFinal = this.special ? (this.punctuationFinal += 500) : (this.punctuationFinal -= 500);
+
+		// Calculos de puntuacion extra por impactos en las palancas
+		leverExtraPoints();
+
+		// Rebotadores a los que se han impactado
+		System.out.println("Rebotaste en un total de: " + this.bouncersRound + " Rebotadores");
+
+		// Numero de veces que se han impactado las palancas
+		System.out.println("Rebotaste un total de: " + (this.leverRight + this.leverLeft) + " en las palancas// " + this.leverRight
+		        + " veces en la palanca derecha y " + this.leverLeft + " veces en la palanca izquierda");
+
+		// Numero de bolas extras usadas
+		System.out.println("Y usaste un total de: " + this.numberExtraBall + " bolas extras");
+
+		// Puntuacion final
+		System.out.println("Por lo tanto la suma total de tu puntuacion es ="
+		        + (this.punctuationFinal <= 0 ? (int) (this.punctuationFinal = 0) : (int) (this.punctuationFinal)) + " puntos");
+
+	}
+
+	/**
+	 * Puntuacion segun las veces que has impactado con las palancas
+	 */
+	private void leverExtraPoints() {
+		if (this.leverRight == this.leverLeft) {
+			this.punctuationFinal += 300;
+
+		} else if (pairOddEquals()) {
+			this.punctuationFinal += 150;
+
+		} else {
+			this.punctuationFinal -= 70;
+
+		}
+		;
+	}
+
+	/**
+	 * @return
+	 */
+	private boolean pairOddEquals() {
+		return (this.leverRight % 2 == 0 && this.leverLeft % 2 == 0 && this.leverRight != 0 && this.leverLeft != 0)
+		        || (this.leverRight % 2 == 1 && this.leverLeft % 2 == 1);
+	}
+
+	/**
+	 * Posibilidades de choque que hay al lanzar la bola
+	 */
+	private void launchBalls() {
 		do {
 
-			this.bolaExtra = false;
+			// Quitar bola extra si posee
+			this.extraBall = false;
+
 			// Calculo de las posibilidades
-			this.posibilidades = (int) (Math.random() * 5);
+			this.possibilities = (int) (Math.random() * 5);
 
 			// Posibilidades que ocurren
-			switch (this.posibilidades) {
+			switch (this.possibilities) {
 
 			// Fuera
+
 			case 0: {
 
-				if (rebotadoresRedondos >= 1 && this.palancaDerecha >= 2 && this.palancaIzquierda >= 2) {
+				if (bouncersRound >= 1 && this.leverRight >= 2 && this.leverLeft >= 2) {
 
-					this.fuera = true;
+					this.out = true;
 				}
 
 				break;
@@ -65,18 +135,17 @@ public class Pinball {
 			// Rebote Redondos
 			case 1: {
 
-				this.puntuacionFinal += (this.puntos *= 0.75);
-				this.puntos=this.puntuacionFinal;
-				rebotadoresRedondos++;
+				this.multiplier = 0.75;
+				pointBounce(this.bouncersRound, this.multiplier);
 				break;
 
 			}
+
 			// Palanca Izquierda
 			case 2: {
 
-				this.puntuacionFinal += (this.puntos *= 0.25);
-				this.puntos=this.puntuacionFinal;
-				palancaIzquierda++;
+				this.multiplier = 0.25;
+				pointBounce(this.leverLeft, this.multiplier);
 				break;
 
 			}
@@ -84,9 +153,8 @@ public class Pinball {
 			// Palanca Derecha
 			case 3: {
 
-				this.puntuacionFinal += (this.puntos *= 0.25);
-				this.puntos=this.puntuacionFinal;
-				palancaDerecha++;
+				this.multiplier = 0.25;
+				pointBounce(this.leverRight, this.multiplier);
 				break;
 
 			}
@@ -94,79 +162,69 @@ public class Pinball {
 			// Especial
 			case 4: {
 
-				if ((this.palancaDerecha >= 3 || this.palancaIzquierda >= 3) && this.especial) {
-
-					this.puntuacionFinal *= 3;
-					this.puntos = this.puntuacionFinal;
-					this.especial = false;
-
-				} else if (!this.especial && this.palancaDerecha % 2 == 0 && this.palancaIzquierda % 2 == 0) {
-
-					this.puntuacionFinal += (this.puntos *= 1.5);
-					this.puntos=this.puntuacionFinal;
-					this.especial = true;
-
-				} else {
-					this.puntuacionFinal += (this.puntos *= 0.5);
-					this.puntos=this.puntuacionFinal;
-				}
+				especialElement();
 				break;
 			}
 			}
 
 			// Para conseguir bolas extras
-			if (!this.especial && puntuacionFinal >= 500) {
-				System.out.println("Tienes una bola extra puedes seguir jugando!!");
-				this.bolaExtra = true;
-				this.numeroBolaExtra++;
-			} else if (this.especial && puntuacionFinal >= 300) {
-				System.out.println("Tienes una bola extra puedes seguir jugando!!");
-				this.bolaExtra = true;
-				this.numeroBolaExtra++;
-			}
+			possibilityExtraBall();
 
-		} while (!this.fuera && !this.bolaExtra);
+		} while (!this.out && !this.extraBall);
+	}
 
-		// Calculos de puntuacion extra por especial
+	/**
+	 * Multiplicador especial si la bola impacta con el elemento especial
+	 */
+	private void especialElement() {
+		if ((this.leverRight >= 1 || this.leverLeft >= 1) && this.special) {
 
-		this.puntuacionFinal = this.especial ? (this.puntuacionFinal += 500) : (this.puntuacionFinal -= 500);
+			this.punctuationFinal *= 3;
+			this.points = this.punctuationFinal;
+			this.special = false;
 
-		// Calculos de puntuacion extra por impactos en las palancas
-		if (this.palancaDerecha == this.palancaIzquierda) {
-			this.puntuacionFinal += 300;
+		} else if (!this.special && this.leverRight % 2 == 0 && this.leverLeft % 2 == 0) {
 
-		} else if ((this.palancaDerecha % 2 == 0 && this.palancaIzquierda % 2 == 0 && this.palancaDerecha != 0 && this.palancaIzquierda != 0)
-		        || (this.palancaDerecha % 2 == 1 && this.palancaIzquierda % 2 == 1)) {
-			this.puntuacionFinal += 150;
+			this.punctuationFinal *= 1.5;
+			this.points = this.punctuationFinal;
+			this.special = true;
 
 		} else {
-			this.puntuacionFinal -= 70;
+			this.punctuationFinal += (this.points / 2);
+			this.points = this.punctuationFinal;
+		}
+	}
 
+	/**
+	 * Casculos para saber si el jugador puede obtener un bola extra o no
+	 */
+	private void possibilityExtraBall() {
+		if (!this.special && punctuationFinal >= 500) {
+			System.out.println("Tienes una bola extra puedes seguir jugando!!");
+			this.extraBall = true;
+			this.numberExtraBall++;
+		} else if (this.special && punctuationFinal >= 300) {
+			System.out.println("Tienes una bola extra puedes seguir jugando!!");
+			this.extraBall = true;
+			this.numberExtraBall++;
 		}
 		;
+	}
 
-		// Rebotadores a los que se han impactado
-		System.out.println("Rebotaste en un total de: " + this.rebotadoresRedondos + " Rebotadores");
-
-		// Numero de veces que se han impactado las palancas
-		System.out.println("Rebotaste un total de: " + (this.palancaDerecha + this.palancaIzquierda) + " en las palancas// " + this.palancaDerecha
-		        + " veces en la palanca derecha y " + this.palancaIzquierda + " veces en la palanca izquierda");
-
-		// Numero de bolas extras usadas
-		System.out.println("Y usaste un total de: " + this.numeroBolaExtra + " bolas extras");
-
-		// Puntuacion final
-		System.out.println("Por lo tanto la suma total de tu puntuacion es ="
-		        + (this.puntuacionFinal <= 0 ? (int) (this.puntuacionFinal = 0) : (int) (this.puntuacionFinal)) + " puntos");
-
-		
+	/**
+	 * Calculo de los multiplicadores cuando la bola choca con los distintos elementos
+	 */
+	private void pointBounce(int cosa, double multiplicate) {
+		this.punctuationFinal += (this.points *= multiplicate);
+		this.points = this.punctuationFinal;
+		cosa++;
 	}
 
 	/**
 	 * @return the puntuacionBase
 	 */
 	public static int getPuntuacionBase() {
-		return puntuacionBase;
+		return punctuationBase;
 	}
 
 	/**
@@ -174,14 +232,14 @@ public class Pinball {
 	 *            the puntuacionBase to set
 	 */
 	public static void setPuntuacionBase(int puntuacionBase) {
-		Pinball.puntuacionBase = puntuacionBase;
+		Pinball.punctuationBase = puntuacionBase;
 	}
 
 	/**
 	 * @return the bolaExtra
 	 */
 	public boolean isBolaExtra() {
-		return bolaExtra;
+		return extraBall;
 	}
 
 	/**
@@ -189,14 +247,14 @@ public class Pinball {
 	 *            the bolaExtra to set
 	 */
 	public void setBolaExtra(boolean bolaExtra) {
-		this.bolaExtra = bolaExtra;
+		this.extraBall = bolaExtra;
 	}
 
 	/**
 	 * @return the rebotadoresRedondos
 	 */
 	public int getRebotadoresRedondos() {
-		return rebotadoresRedondos;
+		return bouncersRound;
 	}
 
 	/**
@@ -204,14 +262,14 @@ public class Pinball {
 	 *            the rebotadoresRedondos to set
 	 */
 	public void setRebotadoresRedondos(int rebotadoresRedondos) {
-		this.rebotadoresRedondos = rebotadoresRedondos;
+		this.bouncersRound = rebotadoresRedondos;
 	}
 
 	/**
 	 * @return the posibilidades
 	 */
 	public int getPosibilidades() {
-		return posibilidades;
+		return possibilities;
 	}
 
 	/**
@@ -219,14 +277,14 @@ public class Pinball {
 	 *            the posibilidades to set
 	 */
 	public void setPosibilidades(int posibilidades) {
-		this.posibilidades = posibilidades;
+		this.possibilities = posibilidades;
 	}
 
 	/**
 	 * @return the palancaIzquierda
 	 */
 	public int getPalancaIzquierda() {
-		return palancaIzquierda;
+		return leverLeft;
 	}
 
 	/**
@@ -234,14 +292,14 @@ public class Pinball {
 	 *            the palancaIzquierda to set
 	 */
 	public void setPalancaIzquierda(int palancaIzquierda) {
-		this.palancaIzquierda = palancaIzquierda;
+		this.leverLeft = palancaIzquierda;
 	}
 
 	/**
 	 * @return the palancaDerecha
 	 */
 	public int getPalancaDerecha() {
-		return palancaDerecha;
+		return leverRight;
 	}
 
 	/**
@@ -249,14 +307,14 @@ public class Pinball {
 	 *            the palancaDerecha to set
 	 */
 	public void setPalancaDerecha(int palancaDerecha) {
-		this.palancaDerecha = palancaDerecha;
+		this.leverRight = palancaDerecha;
 	}
 
 	/**
 	 * @return the especial
 	 */
 	public boolean isEspecial() {
-		return especial;
+		return special;
 	}
 
 	/**
@@ -264,14 +322,14 @@ public class Pinball {
 	 *            the especial to set
 	 */
 	public void setEspecial(boolean especial) {
-		this.especial = especial;
+		this.special = especial;
 	}
 
 	/**
 	 * @return the fuera
 	 */
 	public boolean isFuera() {
-		return fuera;
+		return out;
 	}
 
 	/**
@@ -279,14 +337,14 @@ public class Pinball {
 	 *            the fuera to set
 	 */
 	public void setFuera(boolean fuera) {
-		this.fuera = fuera;
+		this.out = fuera;
 	}
 
 	/**
 	 * @return the puntos
 	 */
 	public double getPuntos() {
-		return puntos;
+		return points;
 	}
 
 	/**
@@ -294,14 +352,14 @@ public class Pinball {
 	 *            the puntos to set
 	 */
 	public void setPuntos(double puntos) {
-		this.puntos = puntos;
+		this.points = puntos;
 	}
 
 	/**
 	 * @return the puntuacionFinal
 	 */
 	public long getPuntuacionFinal() {
-		return puntuacionFinal;
+		return punctuationFinal;
 	}
 
 	/**
@@ -309,14 +367,14 @@ public class Pinball {
 	 *            the puntuacionFinal to set
 	 */
 	public void setPuntuacionFinal(long puntuacionFinal) {
-		this.puntuacionFinal = puntuacionFinal;
+		this.punctuationFinal = puntuacionFinal;
 	}
 
 	/**
 	 * @return the numeroBolaExtra
 	 */
 	public int getNumeroBolaExtra() {
-		return numeroBolaExtra;
+		return numberExtraBall;
 	}
 
 	/**
@@ -324,7 +382,22 @@ public class Pinball {
 	 *            the numeroBolaExtra to set
 	 */
 	public void setNumeroBolaExtra(int numeroBolaExtra) {
-		this.numeroBolaExtra = numeroBolaExtra;
+		this.numberExtraBall = numeroBolaExtra;
+	}
+
+	/**
+	 * @return the multiplier
+	 */
+	public double getMultiplier() {
+		return multiplier;
+	}
+
+	/**
+	 * @param multiplier
+	 *            the multiplier to set
+	 */
+	public void setMultiplier(double multiplier) {
+		this.multiplier = multiplier;
 	}
 
 }

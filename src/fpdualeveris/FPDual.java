@@ -15,6 +15,9 @@ public class FPDual {
 	 * @param args
 	 */
 	public static void main(String[] args) {
+
+		// llamada funcion del reto
+
 		operatorsChallenge();
 
 	}
@@ -32,7 +35,8 @@ public class FPDual {
 
 		if (pb1 instanceof Pinball) {
 
-			// llamada del metodo
+			// llamada del metodo del objeto 
+			
 			pb1.launchBall();
 
 		} else {
